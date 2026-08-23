@@ -18,7 +18,7 @@
   function showLogin(){el("login-screen").hidden=false;el("public-catalogue").hidden=true;el("app-shell").hidden=true;el("login-pin").value=""}
   function showApp(){el("login-screen").hidden=true;el("public-catalogue").hidden=true;el("app-shell").hidden=false}
   async function signOut(server){if(server!==false&&state.session){try{await rpc("library_logout",{p_session_token:state.session.session_token})}catch(e){}}state.session=null;state.data=null;sessionStorage.removeItem("amfcc_library_session");showLogin()}
-  function switchView(view){all(".view").forEach(function(n){n.classList.toggle("active",n.id==="view-"+view)});all("#main-nav button").forEach(function(n){n.classList.toggle("active",n.dataset.view===view)});window.scrollTo({top:0,behavior:"smooth"})}
+  function switchView(view){all(".view").forEach(function(n){n.classList.toggle("active",n.id==="view-"+view)});all("#main-nav button").forEach(function(n){n.classList.toggle("active",n.dataset.view===view)})}
   async function command(action,payload){payload=payload||{};payload.actor_name=actor();var r=await rpc("library_command",{p_session_token:state.session.session_token,p_action:action,p_payload:payload});if(!r||r.status!=="success")throw new Error(r&&r.message||"The library action could not be completed.");return r}
   function setDefaultDue(){var days=state.data&&state.data.settings?Number(state.data.settings.loan_days||14):14;el("checkout-due").value=addDays(today(),days)}
 
