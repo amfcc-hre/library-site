@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#263f62">
+  <title>AMFCC Library</title>
+  <link rel="stylesheet" href="library.css?v=1.0">
+</head>
+<body>
+  <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+
+  <main id="login-screen" class="login-screen">
+    <section class="login-card">
+      <div class="book-mark" aria-hidden="true">L</div>
+      <p class="eyebrow">AMFCC Library</p>
+      <h1>Catalogue and circulation</h1>
+      <p class="lead">Add books, issue and return copies, renew loans, monitor overdue items, and export records.</p>
+      <form id="login-form" class="stack">
+        <label>Access role<select id="login-role"><option value="library_staff">Library Staff</option><option value="administrator">School Administrator</option><option value="it_admin">IT Administrator</option></select></label>
+        <label>Four-digit PIN<input id="login-pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required></label>
+        <button class="button primary" type="submit">Open Library</button>
+      </form>
+      <button id="browse-public" class="button quiet wide" type="button">Browse public catalogue</button>
+      <p id="login-message" class="form-message" hidden></p>
+    </section>
+  </main>
+
+  <main id="public-catalogue" class="public-shell" hidden>
+    <header class="public-header"><div><p class="eyebrow">AMFCC Library</p><h1>Available books</h1></div><button id="close-public" class="button quiet" type="button">Staff login</button></header>
+    <section class="public-content"><label class="search-field">Search title, author, or ISBN<input id="public-search" type="search" placeholder="Start typing"></label><div id="public-results" class="catalog-grid empty-state">The catalogue is loading.</div></section>
+  </main>
+
+  <div id="app-shell" class="app-shell" hidden>
+    <header class="topbar">
+      <div><p class="eyebrow">AMFCC Library</p><h1>Catalogue and circulation</h1></div>
+      <div class="top-actions"><span id="role-pill" class="pill">Library</span><span id="connection-state" class="pill neutral">Connecting</span><button id="refresh" class="button quiet" type="button">Refresh</button><button id="logout" class="button quiet" type="button">Sign out</button></div>
+    </header>
+    <div class="workspace">
+      <nav id="main-nav" class="sidebar" aria-label="Library sections">
+        <button class="active" data-view="circulation" type="button">Circulation</button>
+        <button data-view="catalogue" type="button">Catalogue</button>
+        <button data-view="loans" type="button">Active loans</button>
+        <button data-view="overdue" type="button">Overdue</button>
+        <button data-view="reports" type="button">Reports</button>
+        <button data-view="settings" class="admin-only" type="button">Settings</button>
+      </nav>
+      <main class="content">
+        <div class="identity-strip"><label>Your name for library records<input id="actor-name" autocomplete="name" placeholder="Enter your name" required></label><p>The catalogue starts empty. Add only the books and copies physically held by the Library.</p></div>
+
+        <section id="view-circulation" class="view active">
+          <div class="view-heading"><div><p class="eyebrow">Fast desk workflow</p><h2>Circulation</h2></div></div>
+          <div id="summary-cards" class="summary-grid"></div>
+          <div class="two-column circulation-grid">
+            <form id="checkout-form" class="panel">
+              <div class="panel-heading"><div><h3>Issue a book</h3><p>Find the borrower, then scan the copy barcode.</p></div></div>
+              <div class="form-grid">
+                <label>Borrower type<select id="borrower-type"><option value="student">Student</option><option value="staff">Staff member</option></select></label>
+                <label id="student-search-field">Find student<input id="student-search" type="search" placeholder="Name or registration number"></label>
+                <div id="student-results" class="search-results span-2" hidden></div>
+                <div id="selected-student" class="selected-box span-2">No student selected.</div>
+                <label id="staff-name-field" hidden>Staff borrower name<input id="staff-borrower-name"></label>
+                <label>Copy barcode<input id="checkout-barcode" autocomplete="off" required></label>
+                <label>Due date<input id="checkout-due" type="date"></label>
+                <label class="span-2">Loan note<textarea id="checkout-notes" placeholder="Optional"></textarea></label>
+              </div>
+              <button class="button primary" type="submit">Issue book</button>
+            </form>
+            <form id="return-form" class="panel">
+              <div class="panel-heading"><div><h3>Return a book</h3><p>Scan the copy barcode. Mark damaged only when needed.</p></div></div>
+              <label>Copy barcode<input id="return-barcode" autocomplete="off" required></label>
+              <label>Copy status after return<select id="return-status"><option value="available">Available</option><option value="damaged">Damaged</option></select></label>
+              <label>Condition note<textarea id="return-condition" placeholder="Optional"></textarea></label>
+              <button class="button secondary" type="submit">Return book</button>
+            </form>
+          </div>
+          <article class="panel"><div class="panel-heading"><div><h3>Due soon and overdue</h3><p>Active loans ordered by due date.</p></div><button class="button quiet jump-view" data-view="loans" type="button">View all</button></div><div id="circulation-loans" class="loan-list"></div></article>
+        </section>
+
+        <section id="view-catalogue" class="view">
+          <div class="view-heading"><div><p class="eyebrow">No preloaded records</p><h2>Catalogue</h2><p>Add titles first, then add each physical copy with its own barcode.</p></div><button id="new-title" class="button primary" type="button">Add title</button></div>
+          <form id="title-form" class="panel form-grid" hidden>
+            <input id="title-id" type="hidden">
+            <label>Title<input id="title-name" required></label><label>Subtitle<input id="title-subtitle"></label>
+            <label>Author<input id="title-author"></label><label>ISBN<input id="title-isbn"></label>
+            <label>Publisher<input id="title-publisher"></label><label>Publication year<input id="title-year" type="number" min="1000" max="2200"></label>
+            <label>Category<input id="title-category"></label><label>Shelf location<input id="title-shelf"></label>
+            <label class="span-2">Notes<textarea id="title-notes"></textarea></label>
+            <div class="span-2 form-actions"><button id="cancel-title" class="button quiet" type="button">Cancel</button><button class="button primary" type="submit">Save title</button></div>
+          </form>
+          <div class="toolbar"><input id="catalog-search" type="search" placeholder="Search title, author, ISBN, category, or shelf"><select id="catalog-filter"><option value="all">All titles</option><option value="available">Available now</option><option value="on_loan">On loan</option><option value="no_copies">No copies yet</option></select></div>
+          <div id="catalog-list" class="catalog-grid empty-state">No catalogue titles yet.</div>
+        </section>
+
+        <section id="view-loans" class="view">
+          <div class="view-heading"><div><p class="eyebrow">Currently issued</p><h2>Active loans</h2></div></div>
+          <div class="toolbar"><input id="loan-search" type="search" placeholder="Borrower, registration, title, or barcode"><select id="loan-filter"><option value="all">All active loans</option><option value="overdue">Overdue</option><option value="due_soon">Due in 3 days</option></select></div>
+          <div id="active-loans" class="loan-list empty-state">No active loans.</div>
+        </section>
+
+        <section id="view-overdue" class="view">
+          <div class="view-heading"><div><p class="eyebrow">Follow-up list</p><h2>Overdue loans</h2></div></div>
+          <div id="overdue-loans" class="loan-list empty-state">No overdue loans.</div>
+        </section>
+
+        <section id="view-reports" class="view">
+          <div class="view-heading"><div><p class="eyebrow">Portable records</p><h2>Export reports</h2></div></div>
+          <div class="report-grid">
+            <article class="panel"><h3>Catalogue and copies</h3><p>One row for every physical copy, including availability and shelf location.</p><button id="export-catalogue" class="button secondary" type="button">Download catalogue CSV</button></article>
+            <article class="panel"><h3>Loan history</h3><p>Up to the latest 500 loans, including issue, due, return, and renewal details.</p><button id="export-loans" class="button secondary" type="button">Download loan history CSV</button></article>
+            <article class="panel"><h3>Overdue loans</h3><p>Current follow-up list with borrower and copy information.</p><button id="export-overdue" class="button secondary" type="button">Download overdue CSV</button></article>
+          </div>
+        </section>
+
+        <section id="view-settings" class="view admin-only">
+          <div class="view-heading"><div><p class="eyebrow">Administrator only</p><h2>Library rules</h2><p>These defaults calculate new due dates. Existing loan due dates are not changed.</p></div></div>
+          <form id="settings-form" class="panel form-grid">
+            <label>Standard loan days<input id="loan-days" type="number" min="1" max="365" required></label>
+            <label>Maximum active loans<input id="max-loans" type="number" min="1" max="100" required></label>
+            <label>Maximum renewals<input id="max-renewals" type="number" min="0" max="50" required></label>
+            <label class="toggle"><span><strong>Public catalogue</strong><small>Show title and availability only.</small></span><input id="public-enabled" type="checkbox"></label>
+            <div class="span-2 form-actions"><button class="button primary" type="submit">Save library rules</button></div>
+          </form>
+          <div class="notice info">Fines and reservations are intentionally not included in this first version. Loan records and overdue follow-up work without them.</div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="copy-modal" class="modal" hidden role="dialog" aria-modal="true">
+    <form id="copy-form" class="modal-card">
+      <button id="close-copy" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">Physical inventory</p><h2>Add copy</h2><p id="copy-title-label"></p><input id="copy-title-id" type="hidden">
+      <label>Copy barcode<input id="copy-barcode" autocomplete="off" required></label>
+      <label>Accession number<input id="copy-accession"></label>
+      <label>Acquired on<input id="copy-acquired" type="date"></label>
+      <label>Condition note<textarea id="copy-condition"></textarea></label>
+      <button class="button primary" type="submit">Add copy</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared_config.js"></script><script src="shared_supabase.js"></script><script src="library.js?v=1.0"></script>
+</body>
+</html>
