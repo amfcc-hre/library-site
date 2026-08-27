@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#263f62">
   <title>AMFCC Library</title>
-  <link rel="stylesheet" href="library.css?v=1.0">
+  <link rel="stylesheet" href="library.css?v=1.2">
   <link rel="stylesheet" href="library-fixes.css?v=1.1">
 </head>
 <body>
@@ -80,6 +80,24 @@
 
         <section id="view-catalogue" class="view">
           <div class="view-heading"><div><p class="eyebrow">No preloaded records</p><h2>Catalogue</h2><p>Add titles first, then add each physical copy with its own barcode.</p></div><button id="new-title" class="button primary" type="button">Add title</button></div>
+          <article class="panel isbn-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Scan to add</p>
+                <h3>Find a book by ISBN</h3>
+                <p>Place the cursor in the ISBN field and scan the barcode on the back of the book. A connected scanner normally submits automatically.</p>
+              </div>
+            </div>
+            <form id="isbn-lookup-form" class="isbn-lookup-form">
+              <label>ISBN barcode
+                <input id="isbn-lookup" inputmode="numeric" autocomplete="off" placeholder="Scan or enter ISBN" aria-describedby="isbn-lookup-help" required>
+              </label>
+              <button class="button secondary" type="submit">Find book details</button>
+            </form>
+            <p id="isbn-lookup-help" class="muted lookup-help">The site searches Open Library. Review the result, add the shelf location, then save the title.</p>
+            <div id="isbn-lookup-status" class="lookup-status" hidden role="status" aria-live="polite"></div>
+            <div id="isbn-lookup-result" class="lookup-result" hidden></div>
+          </article>
           <form id="title-form" class="panel form-grid" hidden>
             <input id="title-id" type="hidden">
             <label>Title<input id="title-name" required></label><label>Subtitle<input id="title-subtitle"></label>
@@ -141,6 +159,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="shared_config.js"></script><script src="shared_supabase.js"></script><script src="library.js?v=1.1"></script>
+  <script src="shared_config.js"></script><script src="shared_supabase.js"></script><script src="isbn-lookup.js?v=1.2"></script><script src="library.js?v=1.2"></script>
 </body>
 </html>
